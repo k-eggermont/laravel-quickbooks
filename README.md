@@ -80,3 +80,75 @@ dump($dataService->FindAll("customer");
 ```
 
 You can have some code example of the library on : https://github.com/IntuitDeveloper/SampleApp-CRUD-PHP
+
+
+## Advanced usage
+Best practice for create or update data with the Quickbooks API is using Transformer.
+
+At start, import the package fractal :
+````bash
+composer require league/fractal
+````
+Now you can create your Transformer like :
+````php
+# File: app/Transformers/QuickbooksCustomerTransformer.php
+namespace App\Transformers;
+
+use App\Customer;
+use League\Fractal\TransformerAbstract;
+
+class QuickbooksCustomerTransformer extends TransformerAbstract
+{
+    /**
+     * @param Customer $customer
+     * @return array
+     */
+    public function transform(Customer $customer)
+    {
+        // Append the display name for avoid Vendor/Customer duplication
+        $displayName = $customer->name." (C)";
+        $billing_address = $customer->billing_address; 
+
+        $arr_methods = ["MONEY" => "1","CARD" => "3","WIRE" => "5"];
+        $arr_conditions = ["NET30" => "3", "NET15" => "2", "NET60" => "4", "DEFAULT" => "1"];
+
+        return [
+            "BillAddr" => [
+                "Line1" => $billing_address->address,
+                "Line2" => $billing_address->address_line_2,
+                "Line3" => null,
+                "City" => $billing_address->city,
+                "Country" => $billing_address->country,
+                "CountrySubDivisionCode" => "FR",
+                "PostalCode" => $billing_address->zip
+            ],
+            "GivenName" => $customer->owner->first_name,
+            "FamilyName" => $customer->owner->name,
+            "CompanyName" => $customer->name,
+            "DisplayName" => $displayName,
+            "SalesTermRef" => ["value" => $arr_conditions[strtoupper($customer->payment_condition)]],
+            "PaymentMethodRef" => ["value" => $arr_methods[strtoupper($customer->payment_method)]],
+            "Notes" => $customer->notes,
+            "PrintOnCheckName" => $customer->name,
+            "PrimaryPhone" => [
+                "FreeFormNumber" => $customer->owner->phone
+            ],
+            "PrimaryEmailAddr" => [
+                "Address" => $customer->owner->email
+            ]
+        ];
+    }
+}
+````
+Now you can create the customer with Quickbooks :
+````php
+use Keggermont\LaravelQuickbooks\Helpers\Quickbooks;
+use App\Transformers\QuickbooksCustomerTransformer;
+use QuickBooksOnline\API\Facades\Customer;
+
+$dataService = Quickbooks::auth();
+$customerObj = App\Customer::firstOrFail();
+$customerQuickbooks = (new QuickbooksCustomerTransformer)->transform($customerObj);
+$theResourceObj = Customer::create($customerQuickbooks);
+$resultingObj = $dataService->Add($theResourceObj);
+````

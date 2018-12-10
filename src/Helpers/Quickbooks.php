@@ -9,6 +9,9 @@ use QuickBooksOnline\API\DataService\DataService;
 final class Quickbooks {
 
     private static $instance;
+    /**
+     * @var DataService
+     */
     private $auth = false;
 
 
@@ -26,7 +29,7 @@ final class Quickbooks {
     }
 
     /**
-     * @return DataService|Boolean
+     * @return DataService
      * @throws \QuickBooksOnline\API\Exception\SdkException
      * @throws \QuickBooksOnline\API\Exception\ServiceException
      */

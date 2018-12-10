@@ -6,14 +6,37 @@ use Keggermont\LaravelQuickbooks\Entities\QuickbooksEntity;
 use Keggermont\LaravelQuickbooks\Entities\QuickbooksOauth2;
 use QuickBooksOnline\API\DataService\DataService;
 
-class Quickbooks {
+final class Quickbooks {
+
+    private static $instance;
+    private $auth = false;
+
 
     /**
-     * @return DataService
+     * Singleton
+     *
+     * @return Quickbooks
+     */
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * @return DataService|Boolean
      * @throws \QuickBooksOnline\API\Exception\SdkException
      * @throws \QuickBooksOnline\API\Exception\ServiceException
      */
-    public static function auth() {
+    public function getDataService() {
+
+        // Skeleton
+        if($this->auth != false) {
+            return $this->auth;
+        }
+
         $config = array(
             'auth_mode' => config("quickbooks.Oauth.auth_mode"),
             'ClientID' => config("quickbooks.Oauth.ClientID"),
@@ -55,12 +78,14 @@ class Quickbooks {
         $dataService->setLogLocation(config("quickbooks.log_location"));
         $dataService->throwExceptionOnError(config("quickbooks.throw_exception_on_error"));
 
+        $this->auth = $dataService;
         return $dataService;
 
     }
 
     public static function importObjects($minutes = 12) {
-        $dataService = Quickbooks::auth();
+        $Qb = Quickbooks::getInstance();
+        $dataService = $Qb->getDataService();
 
         // API Based on PST Timezone
         $carbon = \Carbon\Carbon::now()->timezone(new \DateTimeZone("PST"));

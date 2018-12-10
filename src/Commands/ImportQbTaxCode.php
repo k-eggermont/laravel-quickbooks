@@ -46,7 +46,7 @@ class ImportQbTaxCode extends Command
 
         $taxes = $qb->query("SELECT * FROM TaxRate");
         if($taxes) {
-            DB::select("TRUNCATE TABLE quickbooks_tax_codes");
+            DB::select("TRUNCATE TABLE quickbooks_tax_rates");
             foreach($taxes as $tax) {
                 $o = new QuickbooksTaxRate();
                 $o->Name = $tax->Name;
@@ -63,8 +63,6 @@ class ImportQbTaxCode extends Command
 
                 $o->qb_Id = $tax->Id;
                 $o->save();
-
-
 
             }
         }
@@ -83,16 +81,8 @@ class ImportQbTaxCode extends Command
                     $o->Active = false;
                 }
 
-
-
-
-
                 $o->qb_Id  = $tax->Id;
                 $o->save();
-
-
-
-                //dump($o);
             }
         }
     }

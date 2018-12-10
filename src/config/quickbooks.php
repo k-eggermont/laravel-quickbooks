@@ -35,10 +35,18 @@ return [
 
     // VAT CONVERSION
     "VAT" => [
-        "10" => "10 % TVA FR",
-        "0" => "Pas de TVA FR",
-        "5.5" => "5,5 % TVA FR",
-        "20" => "20 % TVA FR"
+        "expense" => [
+            "10" => "10 % TVA FR",
+            "0" => "Pas de TVA FR (Achats)",
+            "5.5" => "5,5 % TVA FR",
+            "20" => "20 % TVA FR"
+        ],
+        "income" => [
+            "10" => "10 % TVA FR",
+            "0" => "Pas de TVA FR (Ventes)",
+            "5.5" => "5,5 % TVA FR",
+            "20" => "20 % TVA FR"
+        ]
     ],
 
     "pdf" => [

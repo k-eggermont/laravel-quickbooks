@@ -63,13 +63,15 @@ https://github.com/intuit/QuickBooks-V3-PHP-SDK
 
 You can access to the dataService with :
 ```php
-$dataService = Keggermont\LaravelQuickbooks\Helpers\Quickbooks::auth();
+$Qb = Keggermont\LaravelQuickbooks\Helpers\Quickbooks::getInstance();
+$dataService = $Qb->getDataService(); 
 ```
 
 Sample code for playing with the Api :
 ```php
 /* Dump all Invoices */
-$dataService = Keggermont\LaravelQuickbooks\Helpers\Quickbooks::auth();
+$Qb = Keggermont\LaravelQuickbooks\Helpers\Quickbooks::getInstance();
+$dataService = $Qb->getDataService();
 dump($dataService->query("SELECT * FROM Invoice")
 
 /* Dump an Customer Id */
@@ -146,7 +148,9 @@ use Keggermont\LaravelQuickbooks\Helpers\Quickbooks;
 use App\Transformers\QuickbooksCustomerTransformer;
 use QuickBooksOnline\API\Facades\Customer;
 
-$dataService = Quickbooks::auth();
+$Qb = Quickbooks::getInstance();
+$dataService = $Qb->getDataService();
+
 $customerObj = App\Customer::firstOrFail();
 $customerQuickbooks = (new QuickbooksCustomerTransformer)->transform($customerObj);
 $theResourceObj = Customer::create($customerQuickbooks);

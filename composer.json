@@ -1,0 +1,13 @@
+{
+    "name": "k-eggermont/laravel-quickbooks",
+    "authors": [
+        {
+            "name": "Kévin EGGERMONT",
+            "email": "kevin.eggermont@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "quickbooks/v3-php-sdk": "^5.0"
+    }
+}

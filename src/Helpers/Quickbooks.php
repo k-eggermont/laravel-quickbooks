@@ -1,6 +1,7 @@
 <?php
 namespace Keggermont\LaravelQuickbooks\Helpers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Keggermont\LaravelQuickbooks\Entities\QuickbooksEntity;
 use Keggermont\LaravelQuickbooks\Entities\QuickbooksOauth2;
@@ -12,7 +13,11 @@ final class Quickbooks {
     /**
      * @var DataService
      */
-    private $auth = false;
+    private $auth = null;
+    /**
+     * @var Carbon
+     */
+    private $duration = null;
 
 
     /**
@@ -35,10 +40,20 @@ final class Quickbooks {
      */
     public function getDataService() {
 
+        // Expiration at 90 minutes
+        if($this->duration != null) {
+            if(Carbon::now()->addMinutes(90) < $this->duration) {
+                $this->auth = null;
+            }
+        }
+
         // Skeleton
-        if($this->auth != false) {
+        if($this->auth != null) {
             return $this->auth;
         }
+
+        // DateTime for expiration
+        $this->duration = Carbon::now();
 
         $config = array(
             'auth_mode' => config("quickbooks.Oauth.auth_mode"),
@@ -96,8 +111,7 @@ final class Quickbooks {
             $cdc = $dataService->CDC(config("quickbooks.autoPullData.items"), $carbon->subMinutes(12));
         } else {
             $cdc = $dataService->CDC(config("quickbooks.autoPullData.items"), $carbon->subYear(3));
-        }
-
+        } 
 
         if(isset($cdc->entities["CreditMemo"]) && $cdc->entities["CreditMemo"] != null) {
             foreach ($cdc->entities["CreditMemo"] as $credit) {
